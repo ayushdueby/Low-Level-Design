@@ -1,81 +1,118 @@
-#include<bits/stdc++.h>
-#include <string>
+#include <bits/stdc++.h>
+using namespace std;
+
 class DocumentElement
 {
-    virtual void render()=0;
+public:
+    virtual string render() = 0;
 };
+
 class TextRenderElement : public DocumentElement
 {   
-    private:
-        string renderText;
-    public:
-        TextRenderElement(string renderText)
-        {
-            this->renderText=renderText;
-        }
-        string render() override
-        {
-            return renderText;
-        }
+private:
+    string renderText;
+
+public:
+    TextRenderElement(string renderText)
+    {
+        this->renderText = renderText;
+    }
+
+    string render() override
+    {
+        return renderText;
+    }
 };
+
 class ImageRenderElement : public DocumentElement
 {   
-    private:
-        string renderImage;
-    public:
-        ImageRenderElement(string renderImage)
-        {
-            this->renderImage=renderImage;
-        }
-        string render() override
-        {
-            return renderImage;
-        }
+private:
+    string renderImage;
+
+public:
+    ImageRenderElement(string renderImage)
+    {
+        this->renderImage = renderImage;
+    }
+
+    string render() override
+    {
+        return renderImage;
+    }
 };
+
 class Persistance
 {
-    virtual void save()=0;
+public:
+    virtual void save(string data) = 0;
 };
+
 class FileStorage : public Persistance
 {
-    //storing in a file
+public:
+    void save(string data) override
+    {
+        cout << "Saving to file: " << data << endl;
+    }
 };
+
 class DbStorage : public Persistance
 {
-    //storing in a db
+public:
+    void save(string data) override
+    {
+        cout << "Saving to DB: " << data << endl;
+    }
 };
+
 class Document
 {
-    vector<DocumentElement*>documentElements;
+private:
+    vector<DocumentElement*> documentElements;
 
-     void addElement(DocumentElement* documentElement)
-     {
+public:
+    void addElement(DocumentElement* documentElement)
+    {
         documentElements.push_back(documentElement);
-     }
+    }
 
     string render()
     {
         string result;
-        for(auto element:documentElements)
+        for (auto element : documentElements)
         {
-            result.push_back(element->render());
+            result += element->render();   // FIXED
         }
         return result;
     }
 };
+
 class DocumentEditor
 {
-    Document*document;
-    Persistance*persistance;
-    string renderedDocument;
+private:
+    Document* document;
+    Persistance* persistance;
 
-    DocumentEditor(Document*document,Persistance*persistance)
+public:
+    DocumentEditor(Document* document, Persistance* persistance)
     {
-        this->document=document
-        this->persistance=persistance
+        this->document = document;
+        this->persistance = persistance;
     }
-    void addElement(string text)
+
+    void addText(string text)
     {
-        document->addElement(text);
+        document->addElement(new TextRenderElement(text));
+    }
+
+    void addImage(string image)
+    {
+        document->addElement(new ImageRenderElement(image));
+    }
+
+    void save()
+    {
+        string renderedDocument = document->render();
+        persistance->save(renderedDocument);
     }
 };
